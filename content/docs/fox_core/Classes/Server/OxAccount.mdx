@@ -1,0 +1,50 @@
+---
+title: OxAccount (Server)
+description: Money/gold accounts — personal, group or shared.
+---
+
+`OxAccount` represents a bank account (personal, group or shared). Obtained via
+`OxAccount.get(accountId)` or the `GetCharacterAccount`/`GetGroupAccount` exports.
+
+## Static
+
+| Method | Returns | Description |
+|---|---|---|
+| `get(accountId: number)` | `Promise<OxAccount>` | Throws if the account doesn't exist |
+| `getAll()` | `Dict<OxAccount>` | All loaded accounts |
+
+## Instance
+
+| Method | Returns | Description |
+|---|---|---|
+| `get(key \| key[])` | `Promise<any>` | Reads column(s) straight from the database |
+| `addBalance({ amount, message })` | `Promise<{ success, message? }>` | Credits the balance |
+| `removeBalance({ amount, overdraw?, message })` | `Promise<{ success, message? }>` | Debits the balance |
+| `transferBalance({ toId, amount, overdraw?, message?, note?, actorId? })` | `Promise<{ success, message? }>` | Transfer between accounts |
+| `depositMoney(playerId, amount, message?, note?)` | `Promise<{ success, message? }>` | Deposits from the `money` inventory item |
+| `withdrawMoney(playerId, amount, message?, note?)` | `Promise<{ success, message? }>` | Withdraws into the `money` item |
+| `depositGold(playerId, amount, message?, note?)` | `Promise<{ success, message? }>` | Deposits from the `gold` item |
+| `withdrawGold(playerId, amount, message?, note?)` | `Promise<{ success, message? }>` | Withdraws into the `gold` item |
+| `createInvoice(data)` | `Promise<{ success, message? }>` | Creates an invoice billed against another account |
+| `setShared()` | `Promise<void>` | Converts the account to the `shared` type |
+| `getCharacterRole(id)` | `Promise<OxAccountRole \| null>` | A character/stateId's role on the account |
+| `setCharacterRole(id, role?)` | `Promise<boolean \| undefined>` | Sets/removes the role |
+| `playerHasPermission(playerId, permission)` | `Promise<boolean>` | Checks a permission (`OxAccountPermissions`) |
+| `deleteAccount()` | `Promise<{ success, message? }>` | Deletes the account |
+
+<Callout title="Money and gold are floats">
+  `money`/`gold` are stored as cents (float). Deposit/withdraw methods receive the amount in
+  **dollars**; the conversion to inventory storage happens internally.
+</Callout>
+
+## Exports
+
+```ts
+const Ox = exports.fox_core;
+
+Ox.GetCharacterAccount(charId);
+Ox.GetGroupAccount(groupName);
+Ox.GetAccount(accountId);
+Ox.CreateAccount(data);
+Ox.CallAccount(accountId, 'addBalance', { amount: 100, message: 'deposit' });
+```

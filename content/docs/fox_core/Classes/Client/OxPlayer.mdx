@@ -1,0 +1,38 @@
+---
+title: OxPlayer (Client)
+description: Client-side singleton with metadata, groups and status for the local character.
+---
+
+On the client, `OxPlayer` is a single instance (`PlayerSingleton`) exported as `GetPlayer()`, not an
+instantiable class.
+
+## Getters/Setters
+
+| Accessor | Type | Description |
+|---|---|---|
+| `isLoaded` | `boolean` | Whether character spawn has finished (controls the `health`/`status`/`dirt` loops) |
+| `state` | `StateBagInterface` | Shortcut for `LocalPlayer.state` |
+
+## Methods
+
+| Method | Returns | Description |
+|---|---|---|
+| `get(key?)` | `any` | With no argument returns the whole singleton; with `key`, reads that metadata |
+| `getGroup(filter)` | `number \| [string, number] \| []` | Same as server, read from `GlobalState.groups` |
+| `getGroupByType(type)` | same shape | — |
+| `getGroups()` | `Dict<number>` | — |
+| `getStatus(name)` / `getStatuses()` | `number` / `Dict<number>` | — |
+| `setStatus(name, value)` | `boolean` | — |
+| `addStatus(name, value)` / `removeStatus(name, value)` | `boolean` | — |
+| `hasPermission(permission)` | `boolean` | — |
+
+Public fields: `userId`, `charId?`, `stateId?`.
+
+## Exports
+
+```ts
+const Ox = exports.fox_core;
+
+Ox.GetPlayer();
+Ox.CallPlayer('getStatuses');
+```

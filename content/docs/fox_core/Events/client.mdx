@@ -1,0 +1,34 @@
+---
+title: Client
+description: Events emitted/listened to on the client.
+---
+
+| Event | Direction | Description |
+|---|---|---|
+| `ox:startCharacterSelect` | `netEvent` | Server sends the character list; starts selection |
+| `ox:setActiveCharacter` | `netEvent` | Server confirms the active character; performs teleport/spawn |
+| `ox:playerLoaded` | `on` (local) | Fired after spawn; starts the `health`/`status`/`dirt`/death loops |
+| `ox:setPlayerData` | `netEvent` | Syncs character metadata |
+| `ox:setGroup` | `netEvent` | Updates the local `OxPlayer`'s group |
+| `ox:setPlayerStatus` | `netEvent` | Updates a status |
+| `ox:clearDirt` | `onNet` | Clears the ped's dirt (washes it) |
+| `ox:playerRevived` | `on` (local) | Resets the death state |
+| `ox:player:<key>` | `emit` (local) | Fired for an individual metadata key, for UI to consume |
+| `ox:statusTick` | `emit` (local) | Fired every 1s, for UI to consume |
+| `ox_inventory:disarm` | `emit` (local) | Fired on death, consumed by `ox_inventory` |
+
+## Periodic loops (after `ox:playerLoaded`)
+
+| File | Interval | What it does |
+|---|---|---|
+| `client/player/health.ts` | 250ms (only sends on change) | Replicates `GetEntityHealth` to the `health` statebag |
+| `client/player/status.ts` | 1s | Status tick, emits `ox:updateStatuses` to the server |
+| `client/player/dirt.ts` | 60s | Reads ped dirt and emits `ox:setDirt` |
+| `client/death.ts` | — | Detects death/bleedout, teleports to the nearest hospital |
+
+<Callout title="Why health.ts runs every 250ms">
+  `GetEntityHealth` is unreliable server-side for player peds on RDR3, so the client reports
+  health through a statebag. The short interval only shrinks the window where a logout/connection
+  drop right after taking damage would save stale health — it only hits the network when the value
+  changes.
+</Callout>

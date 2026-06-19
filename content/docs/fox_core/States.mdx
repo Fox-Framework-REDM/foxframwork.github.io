@@ -1,0 +1,38 @@
+---
+title: States
+description: Statebags used by fox_core (Player, Entity and GlobalState).
+---
+
+## Player
+
+| Key | Set in | Description |
+|---|---|---|
+| `userId` | `setAsJoined` | Numeric user id, replicated on join |
+| `isDead` | `setActiveCharacter`, death/revive events, txAdmin | Whether the ped is dead/downed |
+| `health` | `setActiveCharacter` (seeded from DB), `client/player/health.ts` (live) | Current health — see note below |
+
+<Callout title="Why health is replicated by the client">
+  `GetEntityHealth` returns unreliable values server-side for player peds on RDR3. Real health is
+  reported by the client every 250ms (only when it changes), and the server only reads this
+  statebag on `save()` — no per-tick event, so it scales well with many players.
+</Callout>
+
+## Entity (vehicles/horses)
+
+| Key | Set in | Description |
+|---|---|---|
+| `health` | `OxVehicle.setHealth`, `respawn` | Vehicle/horse health; `0` = dead (spawns dead) |
+| `ox_entity_setonground` | `OxVehicle.respawn` | Flags non-horse vehicles to be repositioned on the ground after spawn |
+
+## GlobalState
+
+| Key | Description |
+|---|---|
+| `groups` | Array with the name of every group |
+| `accountRoles` | Array with the available account roles |
+| `<group>:count` / `<group>:activeCount` | Member count / active member count per group |
+| `group.<name>` | `OxGroup` object |
+| `group.<name>:permissions` | Group permissions |
+| `status.<name>` | `OxStatus` object |
+| `license.<name>` | `OxLicense` object |
+| `accountRole.<role>` | Account role permissions |

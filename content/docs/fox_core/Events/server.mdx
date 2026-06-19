@@ -1,0 +1,38 @@
+---
+title: Server
+description: Events (on/onNet) and callbacks emitted/listened to on the server.
+---
+
+All under the `ox:` namespace, kept for contract stability even on the `fox_core` fork.
+
+| Event | Direction | Description |
+|---|---|---|
+| `ox:playerJoined` | `onNet` | First event from the client after connecting; starts loading the player |
+| `ox:setActiveCharacter` | `onNet` | Client requests loading/creating a character |
+| `ox:createdCharacter` | `emit` (local) | New character created — creates inventory + default account |
+| `ox:playerLoaded` | `emit` (local) | Active character loaded; triggers `OnPlayerLoaded` |
+| `ox:playerLogout` | `emit` (local) | Leaving the active character |
+| `ox:deletedCharacter` | `emit` (local) | Character deleted (soft-delete) |
+| `ox:playerDeath` | `onNet` | Client reports death; sets `isDead` and saves immediately |
+| `ox:playerRevived` | `onNet` | Client reports revive; clears `isDead` |
+| `ox:setDirt` | `onNet` | Client reports body dirt (periodic) |
+| `ox:updateStatuses` | `onNet` | Client reports a status tick (hunger/thirst, etc.) |
+| `ox:getLicense` | `onClientCallback` | Client requests a license |
+| `ox:setActiveGroup` | `onClientCallback` | Client requests switching the active group |
+| `ox:deleteCharacter` | `onClientCallback` | Client requests character deletion |
+| `ox:spawnHorse` | `triggerClientCallback` | Server asks the client to spawn the horse's ped |
+| `ox:getCurrentMountNetId` | `triggerClientCallback` | Fallback for `/dv` to find the current mount |
+| `ox:getNearbyVehicles` | `triggerClientCallback` | Queries nearby vehicles on the client |
+| `playerDropped` | `on` (CFX) | Saves and removes the player from the session |
+| `txAdmin:events:playerHealed` | `on` (CFX) | txAdmin integration: clears `isDead` |
+
+### Hooks for other resources
+
+`server/player/loading.ts` exposes `OnPlayerLoaded(resource, cb)` and `OnPlayerLogout(cb)` as plain
+TS module functions (not `exports`) for companion resources written in TS within the same build.
+
+### External-listener-only (emitted, no internal listener)
+
+`ox:savedPlayers`, `ox:licenseAdded`, `ox:licenseRemoved`, `ox:savedVehicles`, `ox:despawnVehicle`,
+`ox:spawnedVehicle`, `ox:updatedBalance`, `ox:transferredMoney`, `ox:depositedMoney`,
+`ox:withdrewMoney`, `ox:depositedGold`, `ox:withdrewGold`, `ox:invoicePaid`.

@@ -1,0 +1,21 @@
+---
+title: Common
+description: Types shared between client and server (types/index.ts).
+---
+
+There are no shared exported functions between client/server today — this page documents the
+**types** used on both sides (event payloads, metadata).
+
+| Type | Shape |
+|---|---|
+| `Character` | `{ charId, stateId, firstName, lastName, gender, x?, y?, z?, heading?, lastPlayed?, health?, dirt?, isNew? }` |
+| `NewCharacter` | `{ firstName, lastName, gender, date }` |
+| `SpawnOverride` | `{ x, y, z, heading }` |
+| `PlayerMetadata` | `{ name, firstName, lastName, gender, dateOfBirth, telegramId, origin?, activeGroup? }` |
+| `CharacterLicense` | `{ issued: number, suspended?: [number, number], [key: string]: any }` |
+| `PedDirt` | `{ body?, hat?, skin? }` |
+| `VehicleData` | `VehicleStats & { class, doors, make, name, price, seats, type, category, weapons?, [key]: unknown }` |
+| `VehicleTypes` | includes the RDR3-specific types: `'horse' \| 'draft' \| 'cart' \| 'wagon' \| 'handcar'` (+ standard types) |
+| `OxAccountPermissions` | `{ deposit, withdraw, addUser, removeUser, manageUser, transferOwnership, viewHistory, manageAccount, closeAccount, sendInvoice, payInvoice }` |
+| `OxAccountRole` | `'viewer' \| 'contributor' \| 'manager' \| 'owner'` |
+| `BanDetails` | `{ userId, token?, reason?, banned_at, unban_at? }` |

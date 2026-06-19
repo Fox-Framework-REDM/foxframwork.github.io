@@ -1,0 +1,43 @@
+---
+title: fox_core
+description: Players, characters, accounts and vehicles/horses for RedM servers.
+---
+
+`fox_core` manages sessions, characters, groups, statuses, accounts (money/gold) and vehicles —
+including horses, which on RDR3 are `peds`, not `vehicle`.
+
+## Installation
+
+```txt
+ensure oxmysql
+ensure ox_lib
+ensure fox_core
+```
+
+Import the SQL in `fox_core/sql/install.sql` into your database before starting the resource.
+
+## Exports
+
+```ts
+const Ox = exports.fox_core;
+```
+
+The API mirrors `ox_core` (same method names: `GetPlayer`, `CreateVehicle`, etc.) — only the
+resource name changes.
+
+## Convars
+
+| Convar | Default | Description |
+|---|---|---|
+| `ox:characterSlots` | `1` | Max characters per user |
+| `ox:spawnModel` | `player_zero` | Ped model used at spawn |
+| `ox:spawnModelFallback` | `mp_male` | Model used if the primary one fails to load |
+| `ox:spawnLocation` | `[-279.0, 803.0, 119.0, 0.0]` | Default spawn coordinates |
+| `ox:characterSelectLocation` | `[-558.3258, -3781.111, 237.6, 93.2]` | Camera/ped position during character select |
+| `ox:characterSelect` | `1` | Enables the character select flow |
+| `ox:deathSystem` | `1` | Enables the client death/bleedout system |
+| `ox:hospitalBlips` | `1` | Doctor blips at hospitals |
+| `ox:plateFormat` | `........` | Plate generation pattern (non-horse vehicles) |
+| `ox:defaultVehicleStore` | `impound` | Default `stored` value for rows without one |
+| `ox:createDefaultAccount` | `1` | Automatically creates a personal account for new characters |
+| `ox:debug` | `0` | Debug mode |

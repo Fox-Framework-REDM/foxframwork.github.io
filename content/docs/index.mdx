@@ -1,0 +1,32 @@
+---
+title: Introduction
+description: RedM framework (ox_core port) for rdr3 servers.
+---
+
+`fox_core` is a framework for **RedM** (Red Dead Redemption 2 / `rdr3`), built on the architecture of
+[overextended](https://github.com/overextended)'s `ox_core`, but natively ported to RDR3's
+natives and limitations — no cars, armour, plates or phones; horses, cores, and telegrams instead.
+
+## Where to start
+
+- [fox_core](/docs/fox_core) — players, characters, accounts and vehicles/horses.
+
+## Conventions
+
+- Network events keep the `ox:` namespace for contract stability, even though the resource is `fox_core`.
+- Exports are accessed via `exports.fox_core` (`Ox = exports.fox_core`).
+- Convars use the `ox:` prefix (e.g. `ox:spawnModel`).
+
+## Credits
+
+`fox_core` builds on the work of:
+
+- [overextended](https://github.com/overextended) — LGPL-3.0-or-later
+- [Faroeste-Roleplay](https://github.com/Faroeste-Roleplay) — GPL-3.0-or-later
+- [Rexshack-RedM](https://github.com/Rexshack-RedM) — GPL-3.0-or-later
+
+## License
+
+`fox_core` is **GPL-3.0-or-later** as a whole, since it combines GPL-3.0 and LGPL-3.0 code from the
+projects above — GPL is copyleft, so the combined work has to be licensed GPL-3.0-or-later. See the
+project's `LICENSE` file for the full text and notices.

@@ -1,0 +1,37 @@
+---
+title: Server
+description: Exported functions that don't belong to a class instance.
+---
+
+## Session / ban
+
+| Export | Description |
+|---|---|
+| `GetCharIdFromStateId(stateId)` | Resolves the `charId` from a public `stateId` |
+| `BanUser(userId, reason?, duration?)` | Bans a user (recorded in `banned_users`, see anti-evasion) |
+| `UnbanUser(userId)` | Removes a ban |
+
+## Licenses
+
+| Export | Description |
+|---|---|
+| `GetLicenses()` | Lists every registered license |
+| `GetLicense(name)` | Details of a license |
+
+## Accounts
+
+| Export | Description |
+|---|---|
+| `CreateAccount(data)` | Creates a new account and returns the `OxAccount` instance |
+| `PayAccountInvoice(invoiceId)` | Marks an invoice as paid |
+| `DeleteAccountInvoice(invoiceId)` | Removes an invoice |
+
+## Vehicles
+
+| Export | Description |
+|---|---|
+| `CreateVehicle(data, coords?, heading?, invokingScript?)` | Creates and persists a new vehicle/horse |
+| `SpawnVehicle(id, coords?, heading?)` | Spawns an existing vehicle from the database |
+
+See [Classes/Server](/docs/fox_core/Classes/Server/OxPlayer) for instance methods
+(`GetPlayer`, `GetAccount`, `GetVehicle` + `CallX`).

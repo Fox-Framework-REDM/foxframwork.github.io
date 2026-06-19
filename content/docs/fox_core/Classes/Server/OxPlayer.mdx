@@ -1,0 +1,93 @@
+---
+title: OxPlayer (Server)
+description: Main server-side player class — session, character, groups, statuses and licenses.
+---
+
+`OxPlayer` represents a connected player's session. It's obtained via `OxPlayer.get(source)` or the
+`GetPlayer` export.
+
+## Static
+
+| Method | Returns | Description |
+|---|---|---|
+| `get(id: string \| number)` | `OxPlayer` | Lookup by `source` |
+| `getFromUserId(id: number)` | `OxPlayer` | Lookup by `userId` (license) |
+| `getFromCharId(id: number)` | `OxPlayer` | Lookup by active character |
+| `getFromFilter(filter)` | `OxPlayer \| undefined` | Lookup by the first player matching the filter |
+| `getAll(filter?, asArray?)` | `Dict<OxPlayer> \| OxPlayer[]` | Lists all players (optionally filtered) |
+| `saveAll(kickWithReason?: string)` | `void` | Saves everyone; if `kickWithReason`, drops everyone afterwards |
+| `formatBanReason(ban: BanDetails)` | `string` | Formats a ban reason for display |
+
+## Instance
+
+| Method | Returns | Description |
+|---|---|---|
+| `emit(eventName, ...args)` | `void` | `emitNet` to this player |
+| `set(key, value, replicated?)` | `void` | Sets character metadata |
+| `get(key)` | `any` | Reads character metadata |
+| `save()` | — | Persists the active character (coords, heading, health, statuses, dirt) |
+| `logout(save?, dropped?)` | `Promise<void>` | Leaves the active character; returns to character select if still connected |
+| `setAsJoined()` | `Promise<void>` | Registers the player and starts character selection |
+| `createCharacter(data: NewCharacter)` | `Promise<number \| undefined>` | Creates a character, returns its slot |
+| `setActiveCharacter(data, spawn?)` | `Promise<Character \| undefined>` | Sets/loads the active character |
+| `deleteCharacter(charId)` | `Promise<boolean \| undefined>` | Soft-deletes a character |
+| `getHealth()` | `number \| null` | Reads health via the `health` statebag (see note below) |
+
+### Groups
+
+| Method | Returns |
+|---|---|
+| `setActiveGroup(groupName?, temp?)` | `boolean` |
+| `setGroup(groupName, grade?, force?)` | `Promise<boolean \| void>` |
+| `getGroup(filter)` | `number \| [string, number] \| []` |
+| `getGroupByType(type)` | same shape as `getGroup` |
+| `getGroups()` | `Dict<number>` |
+| `hasPermission(permission)` | `boolean` |
+
+### Statuses
+
+| Method | Returns |
+|---|---|
+| `setStatus(statusName, value?)` | `boolean \| undefined` |
+| `getStatus(statusName)` | `number` |
+| `getStatuses()` | `Dict<number>` |
+| `addStatus(statusName, value)` | `boolean \| undefined` |
+| `removeStatus(statusName, value)` | `boolean \| undefined` |
+
+### Licenses
+
+| Method | Returns |
+|---|---|
+| `getLicense(licenseName)` | `CharacterLicense` |
+| `getLicenses()` | `Dict<CharacterLicense>` |
+| `addLicense(licenseName)` | `Promise<boolean>` |
+| `removeLicense(licenseName)` | `Promise<boolean>` |
+| `updateLicense(licenseName, key, value)` | `Promise<boolean>` |
+
+### Dirt
+
+| Method | Returns |
+|---|---|
+| `getDirt()` | `PedDirt \| null` |
+| `setDirt(dirt)` | `void` |
+| `clearDirt()` | `void` |
+
+<Callout title="Health on RDR3">
+  `GetEntityHealth` is unreliable server-side for player peds on RDR3. The client replicates
+  health through the `health` statebag (see [States](/docs/fox_core/States)); `getHealth()` only
+  reads that value, it never calls the native directly.
+</Callout>
+
+## Exports
+
+```ts
+const Ox = exports.fox_core;
+
+Ox.GetPlayer(source);
+Ox.GetPlayerFromUserId(userId);
+Ox.GetPlayerFromCharId(charId);
+Ox.GetPlayerFromFilter({ charId });
+Ox.GetPlayers(filter);
+Ox.SaveAllPlayers();
+Ox.CallPlayer(source, 'getStatuses');
+```

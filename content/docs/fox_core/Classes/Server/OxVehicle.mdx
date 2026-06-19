@@ -1,0 +1,66 @@
+---
+title: OxVehicle (Server)
+description: Vehicles, carts and horses (RDR3 treats horses as peds, not vehicles).
+---
+
+`OxVehicle` represents any persisted vehicular entity — wagons, carts, boats and **horses**.
+On RDR3, horses are `peds`, so `spawn()` branches internally to `CreatePed` when
+`type === 'horse'` in `vehicles.json`, and to `CreateVehicleServerSetter` for everything else.
+
+## Static
+
+| Method | Returns | Description |
+|---|---|---|
+| `spawn(model, coords, heading?, owner?)` | `Promise<number>` | Spawns and returns the entity handle |
+| `get(vin: string)` | `OxVehicle` | Lookup by VIN; spawns from storage if needed |
+| `getFromVehicleId(vehicleId)` | `OxVehicle` | Lookup by numeric id |
+| `getFromNetId(netId)` | `OxVehicle` | Lookup by network id |
+| `getFromEntity(entityId)` | `OxVehicle` | Lookup by entity handle |
+| `getFromFilter(filter)` | `OxVehicle \| undefined` | Lookup by the first match |
+| `getAll(filter?, asArray?)` | `Dict<OxVehicle> \| OxVehicle[]` | Lists all |
+| `generateVin(vehicleData, isOwned?)` | `Promise<string>` | Generates a unique VIN |
+| `generatePlate(pattern?)` | `Promise<string>` | Generates a unique plate (non-horse) |
+| `saveAll(resource?)` | `void` | Saves and despawns vehicles owned by a stopping resource |
+
+## Instance
+
+| Method | Returns | Description |
+|---|---|---|
+| `getHealth()` | `number \| null` | Current health (`health` statebag) |
+| `setHealth(value)` | `void` | Sets health and replicates the statebag |
+| `set(key, value)` / `get(key)` | — | Custom metadata (components, tack/saddle) |
+| `getState()` | `StateBagInterface \| null` | Entity statebag |
+| `getStored()` | `string \| null` | Storage location (`impound`, garage, etc.) |
+| `setStored(value, despawn?)` | `void` | Sets the storage location |
+| `getProperties()` | `Partial<VehicleProperties>` | Current properties |
+| `setProperties(properties, _apply?)` | `void` | Sets properties |
+| `setOwner(charId?)` | `void` | Sets the owner |
+| `setGroup(group?)` | `void` | Sets the owning group |
+| `setPlate(plate)` | `void` | Sets the plate (non-horse) |
+| `save()` | `void` | Persists the row |
+| `despawn(save?)` | `void` | Removes the entity (emits `ox:despawnVehicle`) |
+| `respawn(coords?, rotation?)` | `Promise<number \| null>` | Despawns and respawns at the current/given position |
+| `delete()` | `void` | Hard-deletes the row and despawns |
+| `remove()` | `void` | Despawns with save and unregisters the instance |
+
+### Horse
+
+| Method | Description |
+|---|---|
+| `setHorseData({ nickname?, gender?, bonding?, fertile? })` | Sets several fields at once |
+| `setNickname(value)` | Horse nickname |
+| `setGender(value)` | Sex |
+| `setBonding(value)` | Bonding level |
+| `setFertile(value)` | Fertility (`null` for wagon/boat) |
+
+## Exports
+
+```ts
+const Ox = exports.fox_core;
+
+Ox.CreateVehicle({ model: 'americanstandardbred' }, coords, heading);
+Ox.GetVehicleFromNetId(netId);
+Ox.GetVehicleFromVin(vin);
+Ox.GenerateVehiclePlate();
+Ox.CallVehicle(vin, 'setHealth', 100);
+```
