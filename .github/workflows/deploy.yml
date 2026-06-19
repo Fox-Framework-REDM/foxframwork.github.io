@@ -19,7 +19,6 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-          cache: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
