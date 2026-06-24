@@ -1,0 +1,51 @@
+---
+title: Architecture
+description: Runtime flow, trust boundary, and bridge design for fox_interact.
+---
+
+## Runtime Flow
+
+1. Resources register options through client exports.
+2. `client/store.lua` normalizes and stores options by target type.
+3. `client/main.lua` scans nearby peds, animals, vehicles, objects, local entities, network entities, models, bones, offsets, and coordinates.
+4. Valid options are filtered by distance, group, item, and `canInteract`.
+5. The closest valid interaction is sent to the NUI.
+6. Selecting an option executes a client function/event/export/command or a server event.
+
+## Trust Boundary
+
+The client owns discovery and UI display only.
+
+Server events go through `fox_interact:serverSelect`, which validates:
+
+- event name type
+- event allowlist
+- per-player rate limit
+- entity/network distance when a net ID exists
+
+Server handlers receive the real `source` from the server event wrapper.
+
+## Bridges
+
+Bridge files live in `client/bridge/<name>/bridge.lua`.
+
+Each bridge returns:
+
+```lua
+{
+    hasGroup = function(groups) end,
+    hasItem = function(items, anyItem) end
+}
+```
+
+These functions must be synchronous because they run during interaction scanning.
+
+## FRP Bridge
+
+The FRP bridge uses:
+
+- `frp_core` for group checks
+- `ox_inventory` or `frp_ox_inventory` for item counts
+- a small client cache for group checks because FRP group validation is server-side
+
+When `frp_core` is missing, checks are permissive, matching the existing bridge fallback behavior.

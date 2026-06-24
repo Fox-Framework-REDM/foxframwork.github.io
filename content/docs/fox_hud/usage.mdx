@@ -1,0 +1,94 @@
+---
+title: Usage and API
+description: Exports, events, commands, settings and menu base usage for fox_hud.
+---
+
+## Client Exports
+
+```lua
+exports.fox_hud:RequestUIState(resourceName, stateName, priority, ttlMs, focus, hideHud)
+exports.fox_hud:ReleaseUIState(token)
+exports.fox_hud:ShowAnnouncement(message, durationMs)
+exports.fox_hud:ShowProgress(label, durationMs, options)
+exports.fox_hud:ShowProgress(options)
+exports.fox_hud:GetHudPreferences()
+exports.fox_hud:SetHudPreferences(partialPrefs)
+```
+
+## Server Exports
+
+```lua
+exports.fox_hud:ShowAnnouncement(message, durationMs, target)
+exports.fox_hud:ShowProgress(target, label, durationMs, options)
+exports.fox_hud:ShowProgress(target, options)
+```
+
+## Client Events
+
+```lua
+TriggerEvent('fox_hud:client:announcement', message, durationMs)
+TriggerEvent('fox_hud:client:progress', label, durationMs, options)
+TriggerEvent('fox_hud:client:settings_open')
+TriggerEvent('fox_hud:client:requestUIState', resourceName, stateName, priority, ttlMs, focus, hideHud)
+```
+
+## Commands
+
+```txt
+/hud
+/hudsettings
+```
+
+## UI State Locks
+
+Use UI state locks when another resource needs focus or needs to hide the HUD temporarily.
+
+```lua
+local token = exports.fox_hud:RequestUIState(GetCurrentResourceName(), 'tablet', 500, 60000, true, true)
+
+-- open UI
+
+exports.fox_hud:ReleaseUIState(token)
+```
+
+Higher priority locks win over lower priority locks. Locks can expire with `ttlMs`.
+
+## Progress
+
+`fox_hud` wraps `ox_lib` progress UI. The user preference decides bar/circle unless `options.mode` overrides it.
+
+```lua
+exports.fox_hud:ShowProgress('Searching...', 3000, {
+    canCancel = true,
+    mode = 'circle',
+    disable = { combat = true }
+})
+```
+
+## Menu Base
+
+`fox_hud` includes a reusable RedM-style menu base.
+
+```lua
+exports.fox_hud:OpenMenu('default', 'my_resource', 'main', {
+    title = 'Store',
+    subtext = 'Choose an option',
+    align = 'top-left',
+    elements = {
+        { label = 'Buy item', value = 'buy' },
+        { label = 'Amount', type = 'slider', value = 1, min = 1, max = 10, hop = 1 },
+        { label = 'Quality', type = 'slider', value = 0, options = { 'Low', 'Normal', 'High' } },
+    },
+}, function(data)
+    print(data.current.value)
+end)
+```
+
+## Build
+
+```bash
+cd "server-data/resources/[fox]/fox_hud"
+bun install
+cd web && bun install && cd ..
+bun run build
+```

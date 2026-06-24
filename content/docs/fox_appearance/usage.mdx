@@ -1,0 +1,67 @@
+---
+title: Usage and API
+description: How to use fox_appearance exports and runtime behavior.
+---
+
+## Start Order
+
+Ensure the dependencies before `fox_appearance`:
+
+```cfg
+ensure oxmysql
+ensure ox_lib
+ensure jo_libs
+ensure fox_core
+ensure fox_lib
+ensure fox_interact
+ensure fox_appearance
+```
+
+## Locale
+
+The default locale is English.
+
+```cfg
+setr ox:locale "en"
+```
+
+Brazilian Portuguese is included:
+
+```cfg
+setr ox:locale "pt-br"
+```
+
+## Client Exports
+
+```lua
+exports.fox_appearance:OpenCreator(function(saved) end)
+exports.fox_appearance:OpenBarberShop(function(saved) end)
+exports.fox_appearance:OpenClothingStore(function(saved) end)
+exports.fox_appearance:ApplyAppearance(appearance)
+local appearance = exports.fox_appearance:GetAppearance()
+```
+
+Character select and preview helpers:
+
+```lua
+exports.fox_appearance:OpenCreatorPreview('male')
+exports.fox_appearance:ApplyForChar(charId)
+exports.fox_appearance:ApplyToPed(ped, charId)
+exports.fox_appearance:ReapplySaved()
+exports.fox_appearance:SaveOutfitPreset(preset)
+```
+
+## Server Exports
+
+```lua
+local appearance = exports.fox_appearance:GetAppearance(charId)
+exports.fox_appearance:SetAppearance(charId, appearance)
+exports.fox_appearance:SetPedModel(charId, model)
+exports.fox_appearance:SetOutfitPreset(charId, preset)
+```
+
+## Notes
+
+- The client only sends edit intent and appearance payloads.
+- The server resolves the active `charId`, validates context, charges shop edits, and persists the result.
+- Creation is free; barber/clothing pricing is configured in `shared/config.lua`.

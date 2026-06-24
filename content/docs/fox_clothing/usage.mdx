@@ -1,0 +1,122 @@
+---
+title: Usage and API
+description: Installation, configuration, exports, events, and database notes for fox_clothing.
+---
+
+## Installation
+
+Import `sql/install.sql` into the same database used by `fox_core`, then ensure the resource after its dependencies.
+
+```cfg
+ensure ox_lib
+ensure oxmysql
+ensure ox_inventory
+ensure fox_core
+ensure fox_lib
+ensure jo_libs
+ensure fox_interact
+ensure fox_clothing
+```
+
+## Configuration
+
+Edit `shared/config.lua`.
+
+- `Config.MoneyItem`: `ox_inventory` item used to pay
+- `Config.Price`: flat price charged on buy
+- `Config.PersistWornClothes`: save worn clothes to DB
+- `Config.Stores`: clothing store locations
+- `Config.Wardrobes`: wardrobe-only locations
+- `Config.MaxOutfits`: saved outfit limit per character
+- `Config.Blips` / `Config.Npcs`: world marker toggles
+- `Config.Camera`: menu camera framing
+
+Edit `shared/categories.lua` to change the categories shown in the clothing UI.
+
+## Web Build
+
+```sh
+cd server-data/resources/[fox]/fox_clothing/web
+bun install
+bun run build
+```
+
+The NUI is served from `web/dist/index.html`.
+
+## Client Exports
+
+### `OpenStore(index?)`
+
+Opens a clothing store using `Config.Stores[index]`.
+
+```lua
+exports.fox_clothing:OpenStore(1)
+```
+
+### `OpenWardrobe()`
+
+Opens the first configured wardrobe, or a fallback wardrobe menu.
+
+```lua
+exports.fox_clothing:OpenWardrobe()
+```
+
+### `ApplyWornForChar(charId)`
+
+Loads and applies saved clothing for a character on the local player ped.
+
+```lua
+exports.fox_clothing:ApplyWornForChar(charId)
+```
+
+### `DressPed(ped, components)`
+
+Applies already-fetched clothing components to any ped.
+
+```lua
+exports.fox_clothing:DressPed(previewPed, components)
+```
+
+### `ApplyWornToPed(ped, charId)`
+
+Loads saved clothing for `charId` and applies it to any ped.
+
+```lua
+exports.fox_clothing:ApplyWornToPed(previewPed, charId)
+```
+
+### `ReapplyWorn()`
+
+Reapplies the current in-memory outfit to the local player ped.
+
+Use this after another editor reapplies skin/body data and wipes clothing.
+
+```lua
+exports.fox_clothing:ReapplyWorn()
+```
+
+## Events
+
+### `fox_clothing:dressed`
+
+Client event emitted after saved clothing is applied to the local player.
+
+`fox_appearance` can listen to this event to re-layer hair, beard, overlays, or other appearance data that clothing application may affect.
+
+## Database
+
+`sql/install.sql` creates:
+
+- `character_clothing`
+- `character_outfits`
+- `npc_clothing_catalog`
+
+`server/database.lua` also creates these tables on start as a safety net.
+
+## Security Notes
+
+- The NUI only sends intent.
+- The server resolves `charId` from `fox_core`.
+- The server charges through `ox_inventory`.
+- SQL uses parameterized `oxmysql` calls.
+- Price is configured server-side and never trusted from the client.

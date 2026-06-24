@@ -1,0 +1,33 @@
+---
+title: fox_banking
+description: RedM banking resource for the Fox framework.
+---
+
+`fox_banking` is a RedM/Fox conversion of the original `ox_banking` resource by Overextended.
+
+It keeps the account, transfer, invoice, log, and banking UI flow from the original resource while adapting access to `fox_core`, RedM bank clerks, RedM bank doors, and Fox framework resources.
+
+## Requirements
+
+- `fox_core`
+- `fox_lib`
+- `fox_interact`
+- `ox_lib`
+- `oxmysql`
+- `ox_inventory`
+- `ox_target` when `UseOxTarget` is enabled
+
+## What It Handles
+
+- Personal, shared, and group bank accounts.
+- Money and gold deposits, withdrawals, transfers, quotes, and transaction logs.
+- Branch-aware transfer fees, delays, and arrival notifications.
+- Account users, ownership transfer, shared account conversion, invoices, and dashboard data.
+- Bank clerk interactions through `fox_interact` or target zones through `ox_target`.
+- Safe deposit vault access through `ox_inventory`.
+- RedM bank door state setup from configuration.
+
+## Pages
+
+- [Usage and API](/docs/fox_banking/usage)
+- [Architecture](/docs/fox_banking/architecture)

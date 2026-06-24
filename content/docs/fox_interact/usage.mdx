@@ -1,0 +1,157 @@
+---
+title: Usage and API
+description: Installation, bridges, exports, server events, and FRP bridge notes for fox_interact.
+---
+
+## Installation
+
+Ensure `fox_interact` after its dependencies.
+
+```cfg
+ensure ox_lib
+ensure fox_core
+ensure jo_libs
+ensure fox_interact
+```
+
+Use `fox_interact:framework` to choose a bridge.
+
+```cfg
+setr fox_interact:framework "fox"
+```
+
+Supported values:
+
+- `fox`
+- `frp`
+- `rsg`
+- `vorp`
+- `auto`
+
+`auto` detects `rsg-core`, `vorp_core`, then `frp_core`, and falls back to `fox`.
+
+## Basic Option
+
+```lua
+exports.fox_interact:addCoords(vec3(-322.3, 803.0, 117.6), {
+    name = 'tailor_open',
+    label = 'Open Tailor',
+    icon = 'fa-solid fa-shirt',
+    distance = 2.0,
+    onSelect = function(data)
+        print(data.zone, data.distance)
+    end
+})
+```
+
+## Option Fields
+
+- `name`: unique option name
+- `label`: text shown in the UI
+- `icon`: optional Font Awesome icon class
+- `distance`: max interaction distance
+- `groups`: framework group restriction
+- `items`: required item or items
+- `anyItem`: allow any listed item instead of all
+- `canInteract`: client predicate
+- `onSelect`: client function
+- `event`: client event
+- `serverEvent`: allowed server event
+- `command`: command to execute
+- `export` / `resource`: export call
+- `bones`: entity bone names
+- `offset`: relative entity offset
+- `offsetAbsolute`: world offset
+- `holdTime`: NUI hold duration
+- `cooldown`: client cooldown in milliseconds
+
+## Client Exports
+
+### `addCoords(coords, options)`
+
+Registers coordinate interactions.
+
+```lua
+local id = exports.fox_interact:addCoords(vec3(0.0, 0.0, 0.0), options)
+```
+
+### `removeCoords(id, remove?)`
+
+Removes all coordinate options for the invoking resource, or only named options.
+
+```lua
+exports.fox_interact:removeCoords(id)
+exports.fox_interact:removeCoords(id, 'tailor_open')
+```
+
+### Global Entity Exports
+
+```lua
+exports.fox_interact:addGlobalPed(options)
+exports.fox_interact:addGlobalAnimal(options)
+exports.fox_interact:addGlobalVehicle(options)
+exports.fox_interact:addGlobalObject(options)
+exports.fox_interact:addGlobalPlayer(options)
+```
+
+Matching removal exports:
+
+```lua
+exports.fox_interact:removeGlobalPed(name?)
+exports.fox_interact:removeGlobalAnimal(name?)
+exports.fox_interact:removeGlobalVehicle(name?)
+exports.fox_interact:removeGlobalObject(name?)
+exports.fox_interact:removeGlobalPlayer(name?)
+```
+
+### Model and Entity Exports
+
+```lua
+exports.fox_interact:addModel(`p_chair01x`, options)
+exports.fox_interact:removeModel(`p_chair01x`, name?)
+
+exports.fox_interact:addEntity(netId, options)
+exports.fox_interact:removeEntity(netId, name?)
+
+exports.fox_interact:addLocalEntity(entity, options)
+exports.fox_interact:removeLocalEntity(entity, name?)
+```
+
+### `disableInteract(state)`
+
+Temporarily disables or enables all interaction scanning and UI.
+
+```lua
+exports.fox_interact:disableInteract(true)
+exports.fox_interact:disableInteract(false)
+```
+
+## Server Events
+
+Server events are allowlisted in `shared/config.lua`.
+
+```lua
+Config.AllowedServerEvents = {
+    ['my_resource:inspectAnimal'] = true
+}
+```
+
+The event receives the real `source` first and the interaction payload second.
+
+```lua
+RegisterNetEvent('my_resource:inspectAnimal', function(source, payload)
+    print(source, payload.netId, payload.distance)
+end)
+```
+
+## FRP Bridge
+
+Enable it with:
+
+```cfg
+setr fox_interact:framework "frp"
+```
+
+Group checks use `frp_core` ACE/group checks through a server callback and are cached client-side so interaction scanning stays synchronous.
+
+Item checks use `ox_inventory` or `frp_ox_inventory` when either resource is started. If no supported inventory export exists, item checks stay permissive to avoid hiding every option on unsupported inventories.

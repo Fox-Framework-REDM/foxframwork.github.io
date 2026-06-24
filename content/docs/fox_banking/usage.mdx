@@ -1,0 +1,101 @@
+---
+title: Usage and API
+description: Installation, configuration, exports, and database notes for fox_banking.
+---
+
+## Installation
+
+Import `sql/install.sql` manually into the same database used by `fox_core`, then ensure the resource after its dependencies.
+
+```cfg
+ensure ox_lib
+ensure oxmysql
+ensure ox_inventory
+ensure fox_core
+ensure fox_lib
+ensure fox_interact
+ensure fox_banking
+```
+
+If `data/config.json` has `UseOxTarget` enabled, also ensure `ox_target` before `fox_banking`.
+
+## Database
+
+`sql/install.sql` is a manual schema file. Run it once after the `fox_core` account tables exist.
+
+It adds banking branch data and creates the required tables for:
+
+- branch metadata
+- pending delayed transfers
+- vault rental records
+
+## Configuration
+
+Edit `data/config.json` and `data/banks.json`.
+
+- `WithdrawAmounts`: quick withdrawal values shown by the UI
+- `UseOxTarget`: uses target zones instead of `fox_interact` NPC options
+- `Debug`: enables development-only debug behavior
+- `ApplyBankDoors`: applies configured RedM bank door states on the client
+- `BankBlip`: bank blip sprite, scale, and color
+- `defaultBranch`: fallback branch id for new or unknown account branch data
+- `branchSpoofDistance`: maximum distance used by server-side branch validation
+- `transferTickSeconds`: interval used to process pending delayed transfers
+- `completedTransferRetentionDays`: retention window for completed transfer rows
+- `Vault`: safe deposit vault slots, weight, distance, cooldown, weekly fee, and allowed items
+- `data/banks.json`: branch ids, labels, regions, coordinates, clerk peds, and interaction radius
+
+## Client Export
+
+### `openBank(bankId?)`
+
+Opens the banking UI. Passing a valid branch id opens the UI for that branch.
+
+```lua
+exports.fox_banking:openBank('valentine')
+```
+
+When no branch id is passed, the resource uses the active branch context when available.
+
+## Internal Callbacks
+
+The NUI and client flow use `ox_lib` callbacks. Treat them as internal APIs unless you are extending `fox_banking`.
+
+- `fox_banking:getAccounts`
+- `fox_banking:createAccount`
+- `fox_banking:deleteAccount`
+- `fox_banking:depositMoney`
+- `fox_banking:withdrawMoney`
+- `fox_banking:depositGold`
+- `fox_banking:withdrawGold`
+- `fox_banking:transferMoney`
+- `fox_banking:getTransferQuote`
+- `fox_banking:getOperationQuote`
+- `fox_banking:getDashboardData`
+- `fox_banking:getAccountUsers`
+- `fox_banking:addUserToAccount`
+- `fox_banking:manageUser`
+- `fox_banking:removeUser`
+- `fox_banking:transferOwnership`
+- `fox_banking:renameAccount`
+- `fox_banking:convertAccountToShared`
+- `fox_banking:getLogs`
+- `fox_banking:getInvoices`
+- `fox_banking:payInvoice`
+- `fox_banking:openVault`
+
+## Client Events
+
+- `fox_banking:transferArrived`: sent by the server when a delayed transfer reaches the player.
+
+## Development Build
+
+Use this only when changing TypeScript or the web app.
+
+```sh
+cd server-data/resources/[fox]/fox_banking
+bun install
+bun run build
+```
+
+The NUI is served from `dist/web/index.html`.

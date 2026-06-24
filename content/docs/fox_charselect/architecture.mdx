@@ -1,0 +1,53 @@
+---
+title: Architecture
+description: Flow, fox_core integration, optional integrations, and security for fox_charselect.
+---
+
+## Overview
+
+`fox_charselect` replaces the visual character selection flow while keeping `fox_core` as the authority for users, characters, activation, deletion, and spawn.
+
+It does not create a parallel character table. It replaces only the UI/scene layer.
+
+## Flow
+
+1. `fox_core` emits `ox:startCharacterSelect`.
+2. `fox_charselect` opens the preview scene and NUI.
+3. The server validates slots, ownership, names, date of birth, gender, origin, and cooldowns.
+4. Character activation still goes through `exports.fox_core`.
+5. The resource closes when `fox_core` emits `ox:setActiveCharacter`.
+
+## fox_core Integration
+
+- `setr ox:characterSelect 0` disables the built-in selector.
+- Character actions go through `server/framework.ts`.
+- Activation uses `exports.fox_core.CallPlayer(source, 'setActiveCharacter', ...)`.
+- Deletion uses the fox_core player API instead of direct DB deletion.
+
+## Required Core Data
+
+- `characters.origin VARCHAR(32)` stores the character origin city.
+- `OxPlayer.setActiveCharacter(data, spawn?)` accepts an optional spawn override.
+- `origin` is loaded into player metadata for other resources.
+
+## Optional Integrations
+
+- `fox_hud`: hidden during selection via UI state requests.
+- `fox_lib`: preview camera helper, with raw native fallback.
+- `fox_appearance`: applies character appearance to the preview ped when available.
+
+## Security
+
+- Slot limits are checked server-side.
+- Character ownership is checked server-side.
+- Name, date of birth, gender, and origin are validated server-side.
+- Delete permission is checked server-side.
+- Per-player cooldowns protect create/select/delete callbacks.
+- The `ox:createdCharacter` guard reverts over-limit creations if a crafted client bypasses the UI.
+
+## Files
+
+- `src/shared/` contains config, city data, and shared types.
+- `src/server/` contains oxmysql access, callbacks, validation, guards, and exports.
+- `src/client/` contains the preview scene, NUI bridge, and locale loading.
+- `web/` contains the React/Vite NUI.

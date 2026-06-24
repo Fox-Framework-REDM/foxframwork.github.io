@@ -1,0 +1,100 @@
+---
+title: Usage and API
+description: Basic exports, NPC helpers, placement, security, weapon UX, and locale for fox_lib.
+---
+
+## Basic Exports
+
+```lua
+local ped = exports.fox_lib:createPed({
+    model = 'S_M_M_BankClerk_01',
+    coords = vec3(-308.16, 775.93, 118.7),
+    heading = 180.0,
+    freeze = true,
+    invincible = true,
+})
+
+local blip = exports.fox_lib:addBlip({
+    coords = vec3(-308.16, 775.93, 118.7),
+    sprite = 'blip_shop_bank',
+    name = 'Bank',
+})
+```
+
+## NPCs
+
+```lua
+local npcId = exports.fox_lib:createLocalNpc({
+    id = 'my_resource:banker',
+    model = 'S_M_M_BankClerk_01',
+    coords = { -308.16, 775.93, 118.7, 180.0 },
+    spawnDistance = 25.0,
+    despawnDistance = 40.0,
+    scenario = 'WORLD_HUMAN_CLIPBOARD',
+    freeze = true,
+    invincible = true,
+    blockEvents = true,
+})
+```
+
+```lua
+exports.fox_lib:createNpc(definition)
+exports.fox_lib:createLocalNpc(definition)
+exports.fox_lib:getNpcEntity(npcId)
+exports.fox_lib:playNpcAnimation(npcId, animation)
+exports.fox_lib:clearResourceNpcs(resourceName)
+exports.fox_lib:clearLocalResourceNpcs(resourceName)
+```
+
+Default NPC presets: `banker`, `sheriff`, `doctor`, `shopkeeper`.
+
+## Placement
+
+```lua
+local preview = exports.fox_lib:createPlacementPreview({
+    model = 'p_crate01x',
+    distance = 8.0,
+    snapToGround = true,
+    alpha = 160,
+})
+
+exports.fox_lib:confirmPlacement(preview, {
+    freeze = true,
+    collision = true,
+})
+```
+
+## Security
+
+Use the server helpers for sensitive events/callbacks:
+
+```lua
+local ok = exports.fox_lib:checkRateLimit(source, 'my_action', 1500)
+if not ok then return end
+
+local lock = exports.fox_lib:acquireLock(('player:%s'):format(source), 5000)
+if not lock then return end
+
+-- critical action
+
+exports.fox_lib:releaseLock(lock)
+```
+
+## Weapon UX
+
+Weapon ownership and metadata remain controlled by `ox_inventory`.
+
+```lua
+exports.fox_lib:inspectCurrentWeapon()
+exports.fox_lib:syncCurrentWeaponStats()
+exports.fox_lib:cleanCurrentWeapon(1.0, true)
+exports.fox_lib:useWeaponOil()
+```
+
+## Locale
+
+Default language is English. To use Portuguese:
+
+```cfg
+setr ox:locale pt-br
+```

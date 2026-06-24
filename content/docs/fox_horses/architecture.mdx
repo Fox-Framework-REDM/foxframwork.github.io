@@ -1,0 +1,46 @@
+---
+title: Architecture
+description: Runtime flow, data ownership, and security model for fox_horses.
+---
+
+## Data Ownership
+
+- `fox_core`: owns canonical horse and wagon records in `vehicles`.
+- `fox_horses`: owns gameplay extensions such as status, loyalty, genetics, breeding, training, equipment, saddlebag capacity, and logs.
+- `ox_inventory`: owns money items, care items, saddlebag stashes, and wagon trunks.
+- `fox_interact`: opens stable interactions from configured coordinates.
+- `jo_libs`: handles active horse prompts and RedM horse component rendering.
+
+## Runtime Flow
+
+1. A player opens a stable through `fox_interact`.
+2. The client requests stable data through `ox_lib` callbacks.
+3. The server validates character, distance, ownership, limits, money, inventory, cooldowns, and locks.
+4. Horse and wagon records are created, spawned, stored, or updated through `fox_core` and `oxmysql`.
+5. The client renders NUI, prompts, cameras, and visual equipment only after server approval.
+
+## Active Horse Flow
+
+1. The client detects the mounted or nearby owned horse.
+2. `jo.prompt` shows contextual actions for bag, care, status, water, leading, gear, and dismiss actions.
+3. The client sends only intent such as `netId` and action id.
+4. The server resolves the entity, validates ownership and distance, then applies the action.
+
+## Wagon Flow
+
+Wagons use the same ownership model through `fox_core.vehicles`, with `fox_horses` adding stable UI, primary wagon selection, call, storage, repair, trunk, sale, transfer, and livery state.
+
+## Security Model
+
+- Client and NUI data are not trusted.
+- Server callbacks validate `source`, character id, horse/wagon ownership, entity type, distance, cooldown, and inventory requirements.
+- Critical actions use locks or rate limits to avoid duplicate purchase, sale, transfer, care, and equipment operations.
+- Economy and inventory changes are server-side only.
+- Logs are written for sensitive horse and wagon actions.
+
+## Performance Notes
+
+- There is no DB polling loop.
+- Status decay is computed on demand using timestamps.
+- Active prompts use client-side proximity checks and server validation only when an action is selected.
+- Stored horses and wagons do not require active world entities.

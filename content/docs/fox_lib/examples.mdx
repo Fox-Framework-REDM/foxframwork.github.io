@@ -1,0 +1,55 @@
+---
+title: Examples
+description: Lua and TypeScript examples for fox_lib NPC presets.
+---
+
+## Lua NPC Preset
+
+```lua
+CreateThread(function()
+    exports.fox_lib:createLocalPresetNpc('banker', {
+        id = 'example:banker',
+        coords = vec4(-308.16, 775.93, 118.70, 180.0),
+        schedule = { from = 7, to = 22 },
+        interact = {
+            {
+                name = 'example_bank_open',
+                label = 'Open bank',
+                distance = 2.0,
+                event = 'example:client:openBank',
+            },
+        },
+        blip = {
+            enabled = true,
+            sprite = 'blip_shop_bank',
+            name = 'Bank',
+        },
+    })
+end)
+
+AddEventHandler('example:client:openBank', function()
+    lib.notify({ type = 'inform', description = 'Bank opened by the NPC preset.' })
+end)
+```
+
+## TypeScript NPC Preset
+
+```ts
+declare const exports: {
+  fox_lib: FoxLib.Exports;
+};
+
+exports.fox_lib.createLocalPresetNpc('doctor', {
+  id: 'example:doctor',
+  coords: [-288.76, 806.44, 119.38, 92.0],
+  schedule: { from: 6, to: 20 },
+  interact: [
+    {
+      name: 'example_doctor_check',
+      label: 'Talk to doctor',
+      distance: 2.0,
+      event: 'example:client:doctorCheck',
+    },
+  ],
+});
+```

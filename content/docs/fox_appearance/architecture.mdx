@@ -1,0 +1,33 @@
+---
+title: Architecture
+description: fox_appearance resource structure and security model.
+---
+
+## Structure
+
+- `client/appearance.lua` applies and snapshots metaped appearance.
+- `client/editor.lua` coordinates the React NUI editor and `jo_libs` ped changes.
+- `client/barber.lua` opens grooming-only editing.
+- `client/clothing.lua` opens clothing-only editing.
+- `server/main.lua` owns callbacks, exports, validation, and payment.
+- `server/database.lua` persists appearance JSON with an in-memory cache.
+- `web/` contains the React/Vite NUI.
+- `locales/` contains `en` and `pt-br` translations.
+
+## Server Authority
+
+`fox_appearance:save` validates:
+
+- active character from `fox_core`
+- allowed edit context
+- appearance payload shape
+- server-side shop price
+- payment through `ox_inventory`
+
+The client never decides the charged amount or target character.
+
+## Persistence
+
+Appearance data is stored in `character_appearance`.
+
+`server/database.lua` caches loaded rows per character and updates the cache on save to avoid repeated DB reads during the same session.

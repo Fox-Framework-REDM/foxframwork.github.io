@@ -1,0 +1,205 @@
+---
+title: Usage and API
+description: Installation, configuration, commands, exports, and database notes for fox_horses.
+---
+
+## Installation
+
+Import `sql/install.sql` into the same database used by `fox_core`, then ensure the resource after its dependencies.
+
+```cfg
+ensure ox_lib
+ensure oxmysql
+ensure ox_inventory
+ensure ox_target
+ensure fox_core
+ensure fox_lib
+ensure fox_interact
+ensure jo_libs
+ensure fox_horses
+```
+
+## Configuration
+
+Edit `config.lua` and `shared/config.lua`.
+
+- `Config.Stables`: stable locations, labels, spawn points, previews, and blips
+- `Config.MaxHorses`: horse slot limit per character
+- `Config.MoneyItem`: inventory item used as money
+- `Config.Purchase`: horse purchase settings and currency items
+- `Config.Sale` / `Config.Transfer`: sale refunds and transfer distance
+- `Config.Care`: care item requirements, action duration, and status deltas
+- `Config.Equipment`: equipment pricing, distance, and tint settings
+- `Config.Bag`: saddlebag slots, weight, and stash settings
+- `Config.Water`: trough and river drinking validation distances
+- `Config.Prompts`: active horse prompt keys and prompt layers
+- `Config.Whistle`: whistle command, key, distance, and cooldown settings
+- `HorseConfig.Status`: starting horse status values
+
+## Web Build
+
+```sh
+cd server-data/resources/[fox]/fox_horses/web
+bun install
+bun run build
+```
+
+The NUI is served from `web/dist/index.html`.
+
+## Player Commands
+
+- `/horses`: opens the default stable menu.
+- `/horsebag`: opens the saddlebag for the mounted horse.
+- `/horsestatus`: shows health, status, and saddlebag data for the mounted horse.
+- `/horsegearrefresh`: reapplies visual equipment for the mounted horse.
+- `/horseloyalty`: shows loyalty and bond data for the mounted horse.
+- `/fox_horses_whistle`: whistles for the primary horse. The key is configured by `Config.Whistle.key`.
+
+## Server Exports
+
+### `GetHorse(vehicleId)`
+
+Returns the horse row from the canonical `fox_core` vehicle table.
+
+```lua
+local horse = exports.fox_horses:GetHorse(vehicleId)
+```
+
+### `GetOwnedHorses(charId)`
+
+Returns all horses owned by a character.
+
+```lua
+local horses = exports.fox_horses:GetOwnedHorses(charId)
+```
+
+### `IsHorseOwnedBy(vehicleId, charId)`
+
+Returns whether a character owns the horse.
+
+```lua
+local owned = exports.fox_horses:IsHorseOwnedBy(vehicleId, charId)
+```
+
+### `GetHorseEquipment(vehicleId)`
+
+Returns the persisted equipment table for the horse.
+
+```lua
+local equipment = exports.fox_horses:GetHorseEquipment(vehicleId)
+```
+
+### `GetHorseStatus(vehicleId)`
+
+Returns the persisted status row for the horse.
+
+```lua
+local status = exports.fox_horses:GetHorseStatus(vehicleId)
+```
+
+### `GetHorseLoyalty(horseId, characterId)`
+
+Returns loyalty and bond data for a horse and character.
+
+```lua
+local loyalty = exports.fox_horses:GetHorseLoyalty(horseId, charId)
+```
+
+### `AddHorseLoyalty(horseId, characterId, amount, reason?)`
+
+Adds loyalty XP server-side.
+
+```lua
+exports.fox_horses:AddHorseLoyalty(horseId, charId, 5, 'quest_reward')
+```
+
+### `RemoveHorseLoyalty(horseId, characterId, amount, reason?)`
+
+Removes loyalty XP server-side.
+
+```lua
+exports.fox_horses:RemoveHorseLoyalty(horseId, charId, 3, 'neglect')
+```
+
+### `CanControlHorse(horseId, characterId)`
+
+Returns whether a character can control a horse based on loyalty rules.
+
+```lua
+local ok, reason = exports.fox_horses:CanControlHorse(horseId, charId)
+```
+
+### `GetHorseCommandModifiers(horseId, characterId)`
+
+Returns command modifiers derived from loyalty.
+
+```lua
+local modifiers = exports.fox_horses:GetHorseCommandModifiers(horseId, charId)
+```
+
+### `GetHorseFavoriteOwner(horseId)`
+
+Returns the horse favorite owner data.
+
+```lua
+local favorite = exports.fox_horses:GetHorseFavoriteOwner(horseId)
+```
+
+### `GetBagCapacity(vehicleId)`
+
+Returns computed saddlebag capacity.
+
+```lua
+local bag = exports.fox_horses:GetBagCapacity(vehicleId)
+-- { slots = number, weight = number, hasSaddlebag = boolean }
+```
+
+## Main Server Callbacks
+
+The public gameplay flow uses `ox_lib` callbacks from the client UI and prompts. Treat them as internal APIs unless you are extending `fox_horses`.
+
+- `fox_horses:getStable`
+- `fox_horses:buyHorse`
+- `fox_horses:retrieveHorse`
+- `fox_horses:storeHorse`
+- `fox_horses:storeActiveHorse`
+- `fox_horses:setPrimary`
+- `fox_horses:renameHorse`
+- `fox_horses:sellHorse`
+- `fox_horses:transferHorse`
+- `fox_horses:careHorse`
+- `fox_horses:trainHorse`
+- `fox_horses:startBreeding`
+- `fox_horses:getHorseLoyalty`
+- `fox_horses:openBag`
+- `fox_horses:getActiveHorseSummary`
+- `fox_horses:equipHorseItem`
+- `fox_horses:unequipHorseCategory`
+- `fox_horses:drinkWater`
+- `fox_horses:getWagonStable`
+- `fox_horses:buyWagon`
+- `fox_horses:callWagon`
+- `fox_horses:storeWagon`
+- `fox_horses:repairWagon`
+- `fox_horses:openWagonTrunk`
+
+## Database
+
+`fox_horses` keeps the canonical horse and wagon ownership record in `fox_core.vehicles`.
+
+`sql/install.sql` adds extension tables for gameplay data such as:
+
+- horse profiles and status
+- training and breeding
+- genetics and lineage
+- loyalty and ownership history
+- cooldowns and logs
+
+## Security Notes
+
+- The client only sends intent.
+- The server resolves the active character through `fox_core`.
+- Ownership, type, distance, entity, net id, cooldowns, and locks are validated server-side.
+- Inventory changes go through `ox_inventory`.
+- SQL uses `oxmysql` with parameterized queries.
+- Horse and wagon state is persisted through `fox_core` plus `fox_horses` extension tables.

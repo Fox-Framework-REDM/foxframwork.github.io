@@ -1,0 +1,81 @@
+---
+title: Usage and API
+description: Setup, build, convars, database, exports, command, cities, and locale for fox_charselect.
+---
+
+## Setup
+
+1. Run `sql/install.sql`.
+2. Ensure `oxmysql`, `ox_lib`, `fox_core`, and `jo_libs` start before `fox_charselect`.
+3. Disable the built-in `fox_core` character selector.
+
+```cfg
+setr ox:characterSelect 0
+```
+
+## Build
+
+```bash
+cd "server-data/resources/[fox]/fox_charselect"
+bun install
+cd web && bun install && cd ..
+bun run build
+```
+
+The build generates `dist/client.js`, `dist/server.js`, `web/dist/*`, and `fxmanifest.lua`.
+
+## Convars
+
+```cfg
+setr ox:characterSelect 0
+setr ox:characterSlots 4
+setr fox_charselect:defaultSlots 4
+setr fox_charselect:maxSlots 4
+setr fox_charselect:allowDelete 1
+setr fox_charselect:deleteConfirm 1
+setr fox_charselect:cooldown 1500
+```
+
+## Database
+
+Run `sql/install.sql`.
+
+| Table / Column | Owner | Purpose |
+|---|---|---|
+| `player_slots(userId, slots, updated_at)` | `fox_charselect` | Per-user usable character slots |
+| `characters.origin` | `fox_core` | Character home city/background |
+
+## Exports
+
+```ts
+exports.fox_charselect.GetCharacterSlots(userId)
+exports.fox_charselect.AddCharacterSlot(userId, amount)
+exports.fox_charselect.SetCharacterSlots(userId, slots)
+exports.fox_charselect.AddCharacterSlotByIdentifier(identifier, amount)
+```
+
+## Admin Command
+
+```txt
+/charslots <playerId> <add|set> <amount>
+```
+
+Required ACE:
+
+```txt
+command.charslots
+```
+
+## Cities
+
+Cities are defined in `src/shared/cities.ts`.
+
+Each city has `id`, `label`, `description`, `descriptionKey`, `theme`, and `spawn`.
+
+## Locale
+
+Default language is English. To use Portuguese:
+
+```cfg
+setr ox:locale pt-br
+```

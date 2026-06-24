@@ -1,0 +1,40 @@
+---
+title: Architecture
+description: HUD layers, UI locks, settings, progress and menu base architecture.
+---
+
+## Overview
+
+`fox_hud` is the central UI controller for Fox resources.
+
+It owns:
+
+- custom HUD rendering
+- native HUD hiding
+- announcements
+- progress wrapper
+- settings modal
+- UI state lock arbitration
+- reusable menu base
+
+## UI State
+
+Resources request UI state locks with priority, focus, HUD visibility and optional TTL.
+
+The highest priority active lock controls the current UI state. This prevents resources from fighting over focus or HUD visibility.
+
+## Preferences
+
+Preferences are stored client-side and exposed through exports.
+
+Current preferences include HUD visibility, announcement/progress visibility, progress mode, compact mode, mount card visibility, debug coords, HUD scale and screen offsets.
+
+## Menu Base
+
+The menu base keeps the old `ak_menubase_*` NUI protocol for compatibility, but renders through React.
+
+Slider rows support numeric ranges and option lists. The menu remains keyboard/controller driven from RedM controls.
+
+## Security
+
+HUD and menu actions are client-side UI helpers. Sensitive gameplay actions must still be validated by the server resource that receives the menu result.

@@ -1,4 +1,4 @@
 {
   "title": "fox_core",
-  "pages": ["index", "fox_core"]
+  "pages": ["index", "fox_core", "fox_clothing", "fox_interact", "fox_charselect", "fox_lib", "fox_hud", "fox_appearance", "fox_horses", "fox_banking"]
 }

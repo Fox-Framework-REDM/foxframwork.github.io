@@ -1,0 +1,44 @@
+---
+title: Architecture
+description: Runtime ownership, flow, persistence, and trust boundary for fox_clothing.
+---
+
+## Resource Ownership
+
+- `fox_core` owns player and character identity.
+- `ox_inventory` owns the money item used for clothing purchases.
+- `oxmysql` owns persistence for worn clothing, saved outfits, and the NPC clothing catalog.
+- `fox_lib` owns low-level RedM clothing and camera helpers.
+- `jo_libs` owns metaped component enumeration and application helpers.
+- `fox_interact` owns world interactions at configured store and wardrobe coordinates.
+
+## Flow
+
+1. Player interacts with a clothing store or wardrobe through `fox_interact`.
+2. Client opens the React NUI and freezes/frames the player ped.
+3. Client previews clothing locally while tracking changed slots.
+4. On buy, NUI sends intent to the client, then the client calls the server callback.
+5. Server resolves the character with `fox_core`, charges with `ox_inventory`, and saves components with `oxmysql`.
+6. On spawn, client waits for `fox_appearance:loaded` or a short fallback delay before reapplying saved clothes.
+
+## Persistence
+
+`sql/install.sql` creates:
+
+- `character_clothing` for the currently worn outfit per character
+- `character_outfits` for named wardrobe outfits
+- `npc_clothing_catalog` for harvested NPC clothing grouped by gender
+
+`server/database.lua` also creates the same tables on first start as a safety net.
+
+## NPC Clothing Catalog
+
+The NPC tab is populated by harvesting story/NPC peds once, deduplicating their metaped component GUIDs, and caching the result in MySQL.
+
+This avoids repeating the heavy scan for every player and keeps the actual store browsing fast after the first catalog build.
+
+## Trust Boundary
+
+The client and NUI are not trusted for identity, price, or persistence decisions.
+
+Server callbacks always use the real `source`, resolve `charId` server-side, and save only validated table payloads. The current implementation uses a flat configured price instead of client-provided item prices.
