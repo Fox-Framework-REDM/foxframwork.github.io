@@ -9,7 +9,7 @@ description: Setup, build, convars, database, exports, command, cities, and loca
 2. Ensure `oxmysql`, `ox_lib`, `fox_core`, and `jo_libs` start before `fox_charselect`.
 3. Disable the built-in `fox_core` character selector.
 
-```cfg
+```ini
 setr ox:characterSelect 0
 ```
 
@@ -26,7 +26,7 @@ The build generates `dist/client.js`, `dist/server.js`, `web/dist/*`, and `fxman
 
 ## Convars
 
-```cfg
+```ini
 setr ox:characterSelect 0
 setr ox:characterSlots 4
 setr fox_charselect:defaultSlots 4
@@ -76,6 +76,6 @@ Each city has `id`, `label`, `description`, `descriptionKey`, `theme`, and `spaw
 
 Default language is English. To use Portuguese:
 
-```cfg
+```ini
 setr ox:locale pt-br
 ```
